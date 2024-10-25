@@ -94,7 +94,7 @@ def test_flow():
         EC.element_to_be_clickable((By.XPATH, "//input[@aria-label='Go']"))
     )
     search_button.click()
-    time.sleep(4)
+    time.sleep(2)
 
     # Step 5: Scroll down until the "Add to Cart" button is found
     def scroll_until_add_to_cart():
@@ -108,7 +108,7 @@ def test_flow():
                 break
             except NoSuchElementException:
                 driver.execute_script("window.scrollBy(0, 500);")  # Scroll down by 500 pixels
-                time.sleep(4)
+                time.sleep(2)
 
     scroll_until_add_to_cart()  # Call the scroll function
 
