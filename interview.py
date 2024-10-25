@@ -4,7 +4,6 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import time
 
 # Appium server URL
 APPIUM = "http://127.0.0.1:4723"
@@ -34,14 +33,10 @@ driver = webdriver.Remote(
 
 # Function to confirm we are on the Amazon home page by checking the title
 def confirm_amazon_home_page():
-    try:
-        expected_title = "Amazon.com.au: Shop online for Electronics, Apparel, Toys, Books, DVDs & more"
-        actual_title = driver.title
-        assert actual_title == expected_title, f"Page title mismatch! Expected: '{expected_title}', but got: '{actual_title}'"
-        print("Confirmed: We are on the Amazon home page.")
-    except Exception as e:
-        print(f"Failed to confirm the Amazon home page: {e}")
-        raise
+    expected_title = "Amazon.com.au: Shop online for Electronics, Apparel, Toys, Books, DVDs & more"
+    actual_title = WebDriverWait(driver, 10).until(lambda d: d.title)  # Wait until title is present
+    assert actual_title == expected_title, f"Page title mismatch! Expected: '{expected_title}', but got: '{actual_title}'"
+    print("Confirmed: We are on the Amazon home page.")
 
 # Function to change device orientation to landscape
 def change_orientation_to_landscape():
@@ -82,7 +77,6 @@ def test_flow():
 
     # Step 3: Change orientation to portrait
     change_orientation_to_portrait()
-    time.sleep(2)
 
     # Step 4: Search for 'laptop'
     search_bar = wait.until(
@@ -94,7 +88,6 @@ def test_flow():
         EC.element_to_be_clickable((By.XPATH, "//input[@aria-label='Go']"))
     )
     search_button.click()
-    time.sleep(2)
 
     # Step 5: Scroll down until the "Add to Cart" button is found
     def scroll_until_add_to_cart():
@@ -108,20 +101,20 @@ def test_flow():
                 break
             except NoSuchElementException:
                 driver.execute_script("window.scrollBy(0, 500);")  # Scroll down by 500 pixels
-                time.sleep(2)
 
     scroll_until_add_to_cart()  # Call the scroll function
 
     # Step 6: Scroll up until the cart link is found and click it
     while True:
         try:
-            cart_link = driver.find_element(By.XPATH, "//a[@id='nav-button-cart']")
+            cart_link = wait.until(  # Use explicit wait to find the cart link
+                EC.element_to_be_clickable((By.XPATH, "//a[@id='nav-button-cart']"))
+            )
             cart_link.click()
             print("Navigated to the cart page successfully :D")
             break
         except NoSuchElementException:
             driver.execute_script("window.scrollBy(0, -500);")  # Scroll up by 500 pixels
-            time.sleep(2)
 
 # Execute the test with retry logic
 try:
